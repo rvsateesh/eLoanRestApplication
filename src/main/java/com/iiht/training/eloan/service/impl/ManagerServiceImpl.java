@@ -42,12 +42,14 @@ public class ManagerServiceImpl implements ManagerService {
 			LoanOutputDto lod = new LoanOutputDto();
 			lod.setCustomerId(ln.getCustomerId());
 			lod.setLoanAppId(ln.getId());
-			lod.setUserDto(
-					ConversionUtility.ConvertUsersToUserDto(usersRepository.findUserProfileById(lod.getCustomerId())));
-			lod.setLoanDto(
-					ConversionUtility.ConvertLoanToLoanDto(loanRepository.getLoanProfileById(lod.getLoanAppId())));
-			lod.setProcessingDto(ConversionUtility
-					.PiConvertToPiDto(pProcessingInfoRepository.getProcInfoByLoanAppId(lod.getLoanAppId())));
+			lod.setUserDto(pProcessingInfoRepository.isProcRecordAvailable(ln.getId()) > 0
+					? ConversionUtility.ConvertUsersToUserDto(usersRepository.findUserProfileById(lod.getCustomerId()))
+					: null);
+			lod.setLoanDto(pProcessingInfoRepository.isProcRecordAvailable(ln.getId()) > 0
+					? ConversionUtility.ConvertLoanToLoanDto(loanRepository.getLoanProfileById(lod.getLoanAppId()))
+					: null);
+			lod.setProcessingDto(pProcessingInfoRepository.isProcRecordAvailable(ln.getId()) > 0 ? ConversionUtility
+					.PiConvertToPiDto(pProcessingInfoRepository.getProcInfoByLoanAppId(lod.getLoanAppId())) : null);
 			lod.setSanctionOutputDto(sanctionInfoRepository.isSancRecordAvailable(ln.getId()) > 0 ? ConversionUtility
 					.SiConvertToSiDto(sanctionInfoRepository.getSanctionInfoByLoanAppId(lod.getLoanAppId())) : null);
 			lod.setStatus(ln.getStatus().toString());
@@ -55,8 +57,7 @@ public class ManagerServiceImpl implements ManagerService {
 			lodList.add(lod);
 		}
 		return lodList;
-	}
-
+		
 	@Override
 	public RejectDto rejectLoan(Long managerId, Long loanAppId, RejectDto rejectDto)
 			throws ManagerNotFoundException, LoanNotFoundException, AlreadyFinalizedException {
