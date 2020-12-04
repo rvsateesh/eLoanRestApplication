@@ -39,8 +39,9 @@ public class ClerkServiceImpl implements ClerkService {
 			LoanOutputDto lod = new LoanOutputDto();
 			lod.setCustomerId(ln.getCustomerId());
 			lod.setLoanAppId(ln.getId());
-			lod.setUserDto(
-					ConversionUtility.ConvertUsersToUserDto(usersRepository.findUserProfileById(ln.getCustomerId())));
+			lod.setUserDto(pProcessingInfoRepository.isProcRecordAvailable(ln.getId()) > 0
+					? ConversionUtility.ConvertUsersToUserDto(usersRepository.findUserProfileById(ln.getCustomerId()))
+					: null);
 			lod.setLoanDto(ConversionUtility.ConvertLoanToLoanDto(loanRepository.getLoanProfileById(ln.getId())));
 			lod.setProcessingDto(pProcessingInfoRepository.isProcRecordAvailable(ln.getId()) > 0
 					? ConversionUtility.PiConvertToPiDto(pProcessingInfoRepository.getProcInfoByLoanAppId(ln.getId()))
